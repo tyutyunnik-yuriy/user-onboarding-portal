@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+PNPM="/Users/yuriy/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/pnpm"
+
+if [[ ! -x "$PNPM" ]]; then
+  echo "Не найден pnpm: $PNPM" >&2
+  exit 1
+fi
+
+"$PNPM" install

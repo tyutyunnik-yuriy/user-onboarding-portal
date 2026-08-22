@@ -1,0 +1,16 @@
+{
+  "name": "user-onboarding-portal",
+  "version": "1.0.0",
+  "description": "Portal and Telegram intake for HR IT requests",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "db:schema": "node scripts/apply-postgres-schema.js",
+    "db:migrate": "node scripts/migrate-json-to-postgres.js",
+    "db:duplicates": "node scripts/find-employee-duplicates.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.12.0"
+  }
+}

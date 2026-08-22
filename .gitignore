@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Node.js dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime / local data
+data/
+storage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

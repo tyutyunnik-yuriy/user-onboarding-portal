@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+NODE="/Users/yuriy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"
+
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  export DATABASE_URL="postgres://hr_app:hr_app_password@localhost:5432/hr_requests"
+fi
+
+if [[ ! -x "$NODE" ]]; then
+  echo "Не найден Node.js: $NODE" >&2
+  exit 1
+fi
+
+"$NODE" scripts/check-postgres.js
+"$NODE" scripts/apply-postgres-schema.js

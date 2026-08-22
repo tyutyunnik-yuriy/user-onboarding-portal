@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Портал администратора</title>
+    <link rel="stylesheet" href="/styles.css?v=manager-position-20260822" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">Кадровые IT-заявки</a>
+      <nav>
+        <a href="/">Заявка</a>
+        <a href="/admin.html">Администратор</a>
+        <a href="/telegram.html">Telegram</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="intro compact">
+        <div>
+          <p class="eyebrow">Портал администратора</p>
+          <h1>Заявки на подключение, увольнение и права</h1>
+        </div>
+        <button id="logoutButton" class="secondary hidden" type="button">Выйти</button>
+      </section>
+
+      <form id="loginForm" class="panel narrow">
+        <label>
+          <span>Логин</span>
+          <input name="username" value="admin" autocomplete="username" required />
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit">Войти</button>
+        <p id="loginMessage" role="status"></p>
+      </form>
+
+      <section id="adminArea" class="hidden">
+        <div class="tabs" role="tablist" aria-label="Разделы администратора">
+          <button class="tab active" type="button" data-tab="requests">Заявки</button>
+          <button class="tab" type="button" data-tab="employees">Сотрудники</button>
+          <button class="tab" type="button" data-tab="dictionaries">Справочники</button>
+        </div>
+
+        <section id="requestsTab" data-tab-panel="requests">
+          <div class="toolbar">
+            <input id="searchInput" placeholder="Поиск по имени, отделу, системе" />
+            <select id="typeFilter">
+              <option value="">Все типы</option>
+              <option value="onboarding">Подключение</option>
+              <option value="offboarding">Увольнение</option>
+              <option value="permissions">Изменение прав</option>
+            </select>
+            <select id="statusFilter">
+              <option value="">Все статусы</option>
+              <option value="new">Новая</option>
+              <option value="in_progress">В работе</option>
+              <option value="approved">Согласована</option>
+              <option value="rejected">Отклонена</option>
+              <option value="done">Выполнена</option>
+            </select>
+          </div>
+          <div id="requestList" class="request-list"></div>
+        </section>
+
+        <section id="employeesTab" class="hidden" data-tab-panel="employees">
+          <div id="employeeFormHome">
+            <form id="employeeForm" class="panel employee-form">
+              <input name="id" type="hidden" />
+              <div class="form-grid">
+                <label>
+                  <span>Фамилия *</span>
+                  <input name="lastName" autocomplete="family-name" required />
+                </label>
+                <label>
+                  <span>Имя *</span>
+                  <input name="firstName" autocomplete="given-name" required />
+                </label>
+                <label>
+                  <span>Отчество</span>
+                  <input name="middleName" autocomplete="additional-name" />
+                </label>
+                <label>
+                  <span>Почта *</span>
+                  <input name="email" type="email" required />
+                </label>
+                <label>
+                  <span>Телефон</span>
+                  <input name="phone" autocomplete="tel" inputmode="tel" placeholder="+38 (0__) ___-__-__" data-phone-mask />
+                </label>
+                <label>
+                  <span>Telegram chat ID</span>
+                  <input name="telegramChatId" inputmode="numeric" />
+                </label>
+                <label>
+                  <span id="employeeSubdivisionLabel">Бизнес-юнит</span>
+                  <select name="subdivision" data-employee-dictionary="subdivisions">
+                    <option value="">Выберите бизнес-юнит</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Отдел *</span>
+                  <select name="department" required>
+                    <option value="">Выберите отдел</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Должность *</span>
+                  <select name="position" data-employee-dictionary="positions" required>
+                    <option value="">Выберите должность</option>
+                  </select>
+                </label>
+                <label>
+                  <span id="employeeManagerLabel">Руководитель *</span>
+                  <select name="manager" data-employee-dictionary="managers">
+                    <option value="">Выберите руководителя</option>
+                  </select>
+                </label>
+                <label class="checkbox-field">
+                  <input name="isDepartmentManager" type="checkbox" />
+                  <span>Руководитель отдела</span>
+                </label>
+                <fieldset class="manager-business-units hidden">
+                  <legend>Дополнительные бизнес-юниты ответственности</legend>
+                  <div data-manager-business-units></div>
+                </fieldset>
+                <label>
+                  <span>Уровень доступа</span>
+                  <select name="accessLevel" data-employee-dictionary="accessLevels">
+                    <option value="">Выберите уровень</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Статус</span>
+                  <select name="status">
+                    <option value="active">Активен</option>
+                    <option value="dismissed">Уволен</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset>
+                <legend>Системы сотрудника</legend>
+                <div data-employee-systems></div>
+              </fieldset>
+              <div class="actions">
+                <button id="employeeSubmitButton" type="submit">Добавить сотрудника</button>
+                <button id="employeeCancelButton" class="secondary hidden" type="button">Отменить</button>
+                <p id="employeeMessage" role="status"></p>
+              </div>
+            </form>
+          </div>
+
+          <div class="toolbar">
+            <input id="employeeSearchInput" placeholder="Поиск по сотрудникам, отделу, почте" />
+            <select id="employeeStatusFilter">
+              <option value="">Все сотрудники</option>
+              <option value="active">Активные</option>
+              <option value="dismissed">Уволенные</option>
+            </select>
+          </div>
+          <div id="employeeList" class="request-list"></div>
+        </section>
+
+        <section id="dictionariesTab" class="hidden" data-tab-panel="dictionaries">
+          <div id="dictionaryFormHome">
+            <form id="dictionaryForm" class="panel employee-form">
+              <input name="id" type="hidden" />
+              <div class="form-grid">
+                <label>
+                  <span>Справочник *</span>
+                  <select name="type" required>
+                    <option value="departments">Отделы</option>
+                    <option value="positions">Должности</option>
+                    <option value="subdivisions">Бизнес-юниты</option>
+                    <option value="managers">Руководители</option>
+                    <option value="accessLevels">Уровни доступа</option>
+                    <option value="systems">Системы</option>
+                  </select>
+                </label>
+                <label>
+                  <span id="dictionaryValueLabel">Значение *</span>
+                  <input name="value" required />
+                </label>
+                <label class="position-extra hidden">
+                  <span>Отдел для должности *</span>
+                  <select name="department">
+                    <option value="">Выберите отдел</option>
+                  </select>
+                </label>
+                <fieldset class="department-extra hidden">
+                  <legend>Бизнес-юниты для отдела *</legend>
+                  <div data-department-business-units></div>
+                </fieldset>
+                <fieldset class="system-extra hidden">
+                  <legend>Бизнес-юниты для системы *</legend>
+                  <div data-system-subdivisions></div>
+                </fieldset>
+                <label>
+                  <span>Статус</span>
+                  <select name="status">
+                    <option value="active">Активен</option>
+                    <option value="archived">Скрыт</option>
+                  </select>
+                </label>
+              </div>
+              <div class="actions">
+                <button id="dictionarySubmitButton" type="submit">Добавить значение</button>
+                <button id="dictionaryCancelButton" class="secondary hidden" type="button">Отменить</button>
+                <p id="dictionaryMessage" role="status"></p>
+              </div>
+            </form>
+          </div>
+
+          <div id="dictionaryList" class="dictionary-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/admin.js?v=manager-position-20260822"></script>
+  </body>
+</html>

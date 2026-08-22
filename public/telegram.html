@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Telegram-заявки</title>
+    <link rel="stylesheet" href="/styles.css?v=modern-20260822-3" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">Кадровые IT-заявки</a>
+      <nav>
+        <a href="/">Заявка</a>
+        <a href="/telegram.html">Telegram</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">Telegram</p>
+          <h1>Прием заявок через бота</h1>
+        </div>
+        <p>Бот принимает заявки на подключение и увольнение, проверяет обязательные поля и сохраняет их в общий список администратора.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Подключение пользователя</h2>
+        <pre><code>Тип: подключение
+ФИО: Иван Иванов
+Почта: ivan@example.com
+Телефон: +380501112233
+Отдел: Продажи
+Должность: Менеджер
+Руководитель: Петр Петров
+Дата: 2026-06-10
+Доступ: Базовый
+Системы: CRM, Корпоративная почта
+Комментарий: Нужен VPN</code></pre>
+
+        <h2>Увольнение пользователя</h2>
+        <pre><code>Тип: увольнение
+Сотрудник: Иван Иванов
+Почта сотрудника: ivan@example.com
+Отдел: Продажи
+Руководитель: Петр Петров
+Дата увольнения: 2026-06-20
+Отключить: В день увольнения в 18:00
+Передать: Петр Петров
+Действия: Почта, CRM, VPN, Передать файлы
+Комментарий: Уволить после окончания рабочего дня</code></pre>
+
+        <h2>Запуск с Telegram</h2>
+        <pre><code>TELEGRAM_BOT_TOKEN=123:abc TELEGRAM_ADMIN_CHAT_ID=123456 node server.js</code></pre>
+      </section>
+    </main>
+  </body>
+</html>

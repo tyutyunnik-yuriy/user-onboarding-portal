@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Кадровые IT-заявки</title>
+    <link rel="stylesheet" href="/styles.css?v=modern-20260822-3" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">Кадровые IT-заявки</a>
+      <nav>
+        <a href="/">Заявка</a>
+        <a href="/telegram.html">Telegram</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">Telegram-first процесс</p>
+          <h1>Заявка на подключение, увольнение или изменение прав</h1>
+        </div>
+        <p>Выберите тип заявки и заполните обязательные поля. В рабочей версии пользователь будет делать это через Telegram.</p>
+      </section>
+
+      <form id="requestForm" class="panel">
+        <fieldset class="type-switch">
+          <legend>Тип заявки *</legend>
+          <label><input type="radio" name="requestType" value="onboarding" checked /> Подключение нового пользователя</label>
+          <label><input type="radio" name="requestType" value="offboarding" /> Увольнение и отключение доступов</label>
+          <label><input type="radio" name="requestType" value="permissions" /> Изменение прав сотрудника</label>
+        </fieldset>
+
+        <section class="request-section" data-section="onboarding">
+          <h2>Подключение нового пользователя</h2>
+          <div class="form-grid">
+            <label>
+              <span>Фамилия *</span>
+              <input name="lastName" autocomplete="family-name" data-required-for="onboarding" required />
+            </label>
+            <label>
+              <span>Имя *</span>
+              <input name="firstName" autocomplete="given-name" data-required-for="onboarding" required />
+            </label>
+            <label>
+              <span>Отчество</span>
+              <input name="middleName" autocomplete="additional-name" />
+            </label>
+            <label>
+              <span>Рабочая почта *</span>
+              <input name="email" type="email" autocomplete="email" data-required-for="onboarding" required />
+            </label>
+            <label>
+              <span>Телефон *</span>
+              <input name="phone" autocomplete="tel" inputmode="tel" placeholder="+38 (0__) ___-__-__" data-phone-mask data-required-for="onboarding" required />
+            </label>
+            <label>
+              <span>Бизнес-юнит *</span>
+              <select name="subdivision" data-dictionary="subdivisions" data-required-for="onboarding" required>
+                <option value="">Выберите бизнес-юнит</option>
+              </select>
+            </label>
+            <label>
+              <span>Отдел *</span>
+              <select name="department" data-required-for="onboarding offboarding" required>
+                <option value="">Выберите отдел</option>
+              </select>
+            </label>
+            <label>
+              <span>Должность *</span>
+              <select name="position" data-dictionary="positions" data-required-for="onboarding" required>
+                <option value="">Выберите должность</option>
+              </select>
+            </label>
+            <label>
+              <span>Руководитель *</span>
+              <input name="manager" data-required-for="onboarding offboarding" readonly required placeholder="Подставится после выбора бизнес-юнита и отдела" />
+            </label>
+            <label>
+              <span>Дата начала работы *</span>
+              <input name="startDate" type="date" data-required-for="onboarding" required />
+            </label>
+            <label>
+              <span>Уровень доступа *</span>
+              <select name="accessLevel" data-dictionary="accessLevels" data-required-for="onboarding" required>
+                <option value="">Выберите</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Необходимые системы *</legend>
+            <div data-checkbox-dictionary="systems" data-checkbox-name="systems" data-required-for="onboarding"></div>
+          </fieldset>
+        </section>
+
+        <section class="request-section hidden" data-section="offboarding">
+          <h2>Увольнение и отключение доступов</h2>
+          <div class="form-grid">
+            <label>
+              <span>Сотрудник из базы *</span>
+              <select name="employeeId" id="employeeSelect" data-required-for="offboarding">
+                <option value="">Выберите сотрудника</option>
+              </select>
+              <input name="employeeName" type="hidden" />
+            </label>
+            <label>
+              <span>Почта сотрудника *</span>
+              <input name="employeeEmail" type="email" data-required-for="offboarding" readonly />
+            </label>
+            <label>
+              <span>Отдел *</span>
+              <input name="offboardingDepartment" data-mirror-to="department" data-required-for="offboarding" readonly />
+            </label>
+            <label>
+              <span>Руководитель *</span>
+              <input name="offboardingManager" data-mirror-to="manager" data-required-for="offboarding" readonly />
+            </label>
+            <label>
+              <span>Дата увольнения *</span>
+              <input name="terminationDate" type="date" data-required-for="offboarding" />
+            </label>
+            <label>
+              <span>Когда отключить доступы *</span>
+              <select name="disableTime" data-required-for="offboarding">
+                <option value="">Выберите</option>
+                <option>В день увольнения в 18:00</option>
+                <option>В день увольнения в 12:00</option>
+                <option>Немедленно после согласования</option>
+                <option>По отдельному подтверждению HR</option>
+              </select>
+            </label>
+            <label>
+              <span>Кому передать данные *</span>
+              <select name="handoverTo" data-dictionary="managers" data-required-for="offboarding">
+                <option value="">Выберите получателя</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Текущие подключенные системы</legend>
+            <div data-employee-offboarding-systems></div>
+          </fieldset>
+        </section>
+
+        <section class="request-section hidden" data-section="permissions">
+          <h2>Изменение прав сотрудника</h2>
+          <div class="form-grid">
+            <label>
+              <span>Сотрудник из базы *</span>
+              <select name="permissionEmployeeId" id="permissionEmployeeSelect" data-required-for="permissions">
+                <option value="">Выберите сотрудника</option>
+              </select>
+            </label>
+            <label>
+              <span>Почта сотрудника</span>
+              <input name="permissionEmployeeEmail" type="email" readonly />
+            </label>
+            <label>
+              <span>Отдел</span>
+              <input name="permissionDepartment" readonly />
+            </label>
+            <label>
+              <span>Руководитель</span>
+              <input name="permissionManager" readonly />
+            </label>
+            <label>
+              <span>Текущий уровень доступа</span>
+              <input name="currentAccessLevel" readonly />
+            </label>
+            <label>
+              <span>Новый уровень доступа</span>
+              <select name="requestedAccessLevel" data-dictionary="accessLevels">
+                <option value="">Не менять</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Системы сотрудника</legend>
+            <div data-permission-systems></div>
+          </fieldset>
+        </section>
+
+        <div class="form-grid">
+          <label>
+            <span>Комментарий</span>
+            <textarea name="comment" rows="4" placeholder="Детали, которые важно учесть"></textarea>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Отправить заявку</button>
+          <p id="formMessage" role="status"></p>
+        </div>
+      </form>
+    </main>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/app.js?v=manager-autofill-department-20260822"></script>
+  </body>
+</html>

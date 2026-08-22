@@ -1,0 +1,33 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+NODE="/Users/yuriy/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"
+DOCKER="${DOCKER_BIN:-}"
+COMPOSE="${DOCKER_COMPOSE_BIN:-}"
+
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  export DATABASE_URL="postgres://hr_app:hr_app_password@localhost:5432/hr_requests"
+fi
+
+if [[ -z "$COMPOSE" && -x "/Applications/Docker.app/Contents/Resources/cli-plugins/docker-compose" ]]; then
+  COMPOSE="/Applications/Docker.app/Contents/Resources/cli-plugins/docker-compose"
+fi
+
+if [[ -z "$COMPOSE" && -z "$DOCKER" ]]; then
+  if command -v docker >/dev/null 2>&1; then
+    DOCKER="$(command -v docker)"
+  elif [[ -x "/Applications/Docker.app/Contents/Resources/bin/docker" ]]; then
+    DOCKER="/Applications/Docker.app/Contents/Resources/bin/docker"
+  else
+    echo "Docker не найден. Установите и запустите Docker Desktop." >&2
+    exit 1
+  fi
+fi
+
+if [[ -n "$COMPOSE" ]]; then
+  "$COMPOSE" up -d postgres
+else
+  "$DOCKER" compose up -d postgres
+fi
+
+"$NODE" scripts/wait-for-postgres.js
