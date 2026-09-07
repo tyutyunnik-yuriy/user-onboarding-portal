@@ -368,6 +368,38 @@ function employeeSearchText(employee) {
     .replace(/ё/g, "е");
 }
 
+function employeeSearchRank(employee, tokens) {
+  const fields = {
+    fullName: normalizeSearch(employee.fullName),
+    lastName: normalizeSearch(employee.lastName),
+    firstName: normalizeSearch(employee.firstName),
+    middleName: normalizeSearch(employee.middleName),
+    email: normalizeSearch(employee.email),
+    phoneDigits: String(employee.phone || "").replace(/\D/g, ""),
+    department: normalizeSearch(employee.department),
+    subdivision: normalizeSearch(employee.subdivision),
+    position: normalizeSearch(employee.position),
+    manager: normalizeSearch(employee.manager),
+    systems: normalizeSearch((employee.systems || []).join(" "))
+  };
+  const allText = employeeSearchText(employee);
+
+  return tokens.reduce((score, token) => {
+    const digits = token.replace(/\D/g, "");
+    if (fields.lastName.startsWith(token)) return score + 1200;
+    if (fields.fullName.startsWith(token)) return score + 1100;
+    if (fields.fullName.split(/\s+/).some((part) => part.startsWith(token))) return score + 1000;
+    if (fields.email.startsWith(token)) return score + 900;
+    if (digits && fields.phoneDigits.startsWith(digits)) return score + 850;
+    if (fields.email.includes(token)) return score + 650;
+    if (fields.department.startsWith(token) || fields.subdivision.startsWith(token)) return score + 450;
+    if (fields.position.startsWith(token) || fields.manager.startsWith(token)) return score + 350;
+    if (allText.includes(token)) return score + 150;
+    if (digits && allText.includes(digits)) return score + 120;
+    return score;
+  }, 0);
+}
+
 function employeeSearchLabel(employee) {
   return `${employee.fullName} · ${employee.email || "без почты"}`;
 }
@@ -392,8 +424,12 @@ function renderEmployeeSearchResults(kind) {
   const matches = employees
     .filter((employee) => {
       const text = employeeSearchText(employee);
-      return tokens.every((token) => text.includes(token) || text.includes(token.replace(/\D/g, "")));
+      return tokens.every((token) => {
+        const digits = token.replace(/\D/g, "");
+        return text.includes(token) || (digits && text.includes(digits));
+      });
     })
+    .sort((left, right) => employeeSearchRank(right, tokens) - employeeSearchRank(left, tokens))
     .slice(0, 10);
   results.innerHTML = matches.length
     ? matches
