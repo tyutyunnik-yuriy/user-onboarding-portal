@@ -27,8 +27,8 @@ const requestTypes = {
 
 const requiredFieldsByType = {
   onboarding: ["lastName", "firstName", "email", "phone", "department", "subdivision", "position", "manager", "startDate", "accessLevel", "systems"],
-  offboarding: ["employeeName", "employeeEmail", "department", "manager", "terminationDate", "disableTime", "handoverTo"],
-  permissions: ["employeeId", "employeeName", "employeeEmail", "department", "manager"]
+  offboarding: ["employeeId", "terminationDate", "disableTime", "handoverTo"],
+  permissions: ["employeeId"]
 };
 
 const fieldLabels = {
@@ -619,22 +619,11 @@ async function validateNewEmployeeUniqueness(item) {
 }
 
 async function resolveActiveEmployee(item) {
-  if (item.employeeId) {
-    const employee = await storage.findActiveUserById(item.employeeId);
-    return employee ? { employee } : { errors: ["Сотрудник не найден в базе или уже отключен"] };
-  }
-
   const users = await storage.listUsers();
-  const email = normalizeEmail(item.employeeEmail || item.email);
-  if (email) {
-    const employee = users.find((user) => normalizeEmail(user.email) === email);
-    return employee ? { employee } : { errors: ["Активный сотрудник с такой почтой не найден"] };
-  }
-
   const query = normalizeText(item.employeeName || item.fullName);
-  if (!query) return { employee: null };
-
-  const matches = users.filter((user) => {
+  const email = normalizeEmail(item.employeeEmail || item.email);
+  const matchesQuery = (user) => {
+    if (!query) return true;
     const text = normalizeText([
       user.fullName,
       user.lastName,
@@ -647,7 +636,35 @@ async function resolveActiveEmployee(item) {
       user.position
     ].join(" "));
     return query.split(/\s+/).every((token) => text.includes(token));
-  });
+  };
+
+  const validateProvidedIdentifiers = (employee) => {
+    if (email && normalizeEmail(employee.email) !== email) {
+      return ["ФИО и почта указывают на разных сотрудников. Выберите сотрудника из базы или уточните почту"];
+    }
+    if (query && !matchesQuery(employee)) {
+      return ["ФИО и почта указывают на разных сотрудников. Выберите сотрудника из базы или уточните ФИО"];
+    }
+    return [];
+  };
+
+  if (item.employeeId) {
+    const employee = await storage.findActiveUserById(item.employeeId);
+    if (!employee) return { errors: ["Сотрудник не найден в базе или уже отключен"] };
+    const identifierErrors = validateProvidedIdentifiers(employee);
+    return identifierErrors.length ? { errors: identifierErrors } : { employee };
+  }
+
+  if (email) {
+    const employee = users.find((user) => normalizeEmail(user.email) === email);
+    if (!employee) return { errors: ["Активный сотрудник с такой почтой не найден"] };
+    const identifierErrors = validateProvidedIdentifiers(employee);
+    return identifierErrors.length ? { errors: identifierErrors } : { employee };
+  }
+
+  if (!query) return { employee: null };
+
+  const matches = users.filter(matchesQuery);
 
   if (matches.length === 1) return { employee: matches[0] };
   if (matches.length > 1) {
