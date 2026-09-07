@@ -424,6 +424,10 @@ function renderEmployeeSearchResults(kind) {
 
   const query = normalizeSearch(input.value.trim());
   const selectedId = kind === "offboarding" ? form.elements.employeeId.value : form.elements.permissionEmployeeId.value;
+  if (selectedId) {
+    results.innerHTML = "";
+    return;
+  }
   if (!employees.length) {
     results.innerHTML = '<p class="meta">Сотрудников в базе пока нет</p>';
     return;
@@ -468,7 +472,7 @@ function selectEmployeeForRequest(kind, employee) {
     employeeSearchInputs.permissions.value = employee ? employeeSearchLabel(employee) : "";
     fillPermissionFields(employee);
   }
-  renderEmployeeSearchResults(kind);
+  if (employeeSearchResults[kind]) employeeSearchResults[kind].innerHTML = "";
 }
 
 Object.entries(employeeSearchInputs).forEach(([kind, input]) => {
