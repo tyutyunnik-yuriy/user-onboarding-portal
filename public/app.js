@@ -84,10 +84,6 @@ typeInputs.forEach((input) => input.addEventListener("change", syncRequestType))
 syncRequestType();
 
 function fillEmployeeFields(employee) {
-  form.elements.employeeName.value = employee?.fullName || "";
-  form.elements.employeeEmail.value = employee?.email || "";
-  form.elements.offboardingDepartment.value = employee?.department || "";
-  form.elements.offboardingManager.value = employee?.manager || "";
   if (employee?.manager && !form.elements.handoverTo.value) {
     form.elements.handoverTo.value = employee.manager;
   }
@@ -96,10 +92,6 @@ function fillEmployeeFields(employee) {
 }
 
 function fillPermissionFields(employee) {
-  form.elements.permissionEmployeeEmail.value = employee?.email || "";
-  form.elements.permissionDepartment.value = employee?.department || "";
-  form.elements.permissionManager.value = employee?.manager || "";
-  form.elements.currentAccessLevel.value = employee ? employee.accessLevel || "Не назначен" : "";
   if (employee?.accessLevel && !form.elements.requestedAccessLevel.value) {
     form.elements.requestedAccessLevel.value = "";
   }
@@ -561,12 +553,6 @@ form.addEventListener("submit", async (event) => {
     const currentSystems = employee?.systems || [];
     const requestedSystems = payload.requestedSystems || [];
     payload.employeeId = payload.permissionEmployeeId;
-    payload.employeeName = employee?.fullName || "";
-    payload.employeeEmail = employee?.email || "";
-    payload.department = employee?.department || "";
-    payload.manager = employee?.manager || "";
-    payload.currentAccessLevel = employee?.accessLevel || "";
-    payload.currentSystems = currentSystems;
     payload.systemsToAdd = requestedSystems.filter((system) => !currentSystems.includes(system));
     payload.systemsToRemove = currentSystems.filter((system) => !requestedSystems.includes(system));
     payload.permissionsSystemsChanged = payload.systemsToAdd.length > 0 || payload.systemsToRemove.length > 0;
@@ -578,7 +564,6 @@ form.addEventListener("submit", async (event) => {
       message.textContent = "Выберите сотрудника из найденных результатов";
       return;
     }
-    payload.currentSystems = employee?.systems || [];
     payload.offboardingActions = [];
   }
 

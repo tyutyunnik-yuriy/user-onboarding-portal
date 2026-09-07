@@ -674,6 +674,9 @@ async function resolveActiveEmployee(item) {
 }
 
 function applyEmployeeSnapshot(item, employee) {
+  item.fullName = "";
+  item.email = "";
+  item.phone = "";
   item.employeeId = employee.id;
   item.employeeName = employee.fullName;
   item.employeeEmail = employee.email;

@@ -103,10 +103,6 @@
               <input name="employeeSearch" type="search" autocomplete="off" placeholder="Начните вводить ФИО, почту, отдел или бизнес-юнит" data-employee-search-input="offboarding" />
               <input name="employeeId" type="hidden" data-required-for="offboarding" />
               <div class="employee-search-results" data-employee-search-results="offboarding"></div>
-              <input name="employeeName" type="hidden" />
-              <input name="employeeEmail" type="hidden" data-required-for="offboarding" />
-              <input name="offboardingDepartment" type="hidden" data-mirror-to="department" data-required-for="offboarding" />
-              <input name="offboardingManager" type="hidden" data-mirror-to="manager" data-required-for="offboarding" />
               <div class="selected-employee-card hidden" data-selected-employee-summary="offboarding"></div>
             </div>
             <label>
@@ -145,10 +141,6 @@
               <input name="permissionEmployeeSearch" type="search" autocomplete="off" placeholder="Начните вводить ФИО, почту, отдел или бизнес-юнит" data-employee-search-input="permissions" />
               <input name="permissionEmployeeId" type="hidden" data-required-for="permissions" />
               <div class="employee-search-results" data-employee-search-results="permissions"></div>
-              <input name="permissionEmployeeEmail" type="hidden" />
-              <input name="permissionDepartment" type="hidden" />
-              <input name="permissionManager" type="hidden" />
-              <input name="currentAccessLevel" type="hidden" />
               <div class="selected-employee-card hidden" data-selected-employee-summary="permissions"></div>
             </div>
             <label>
@@ -180,6 +172,6 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/app.js?v=trusted-employee-snapshot-20260907"></script>
+    <script src="/app.js?v=clean-employee-payload-20260907"></script>
   </body>
 </html>
