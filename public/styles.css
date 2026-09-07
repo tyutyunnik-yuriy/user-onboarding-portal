@@ -237,17 +237,25 @@ h2 {
 .type-switch {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  padding: 14px;
-  background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 42%),
-    var(--surface-soft);
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.type-switch legend {
+  grid-column: 1 / -1;
+  padding: 0;
+  margin: 0 0 2px;
+  color: #263241;
 }
 
 .type-switch label {
-  min-height: 54px;
+  display: flex;
+  align-items: center;
+  min-height: 68px;
   margin: 0;
-  padding: 12px 14px;
+  padding: 14px 16px;
   color: var(--text);
   background: #ffffff;
   border: 1px solid var(--line);
