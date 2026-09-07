@@ -493,7 +493,7 @@ function renderEmployeeCard(employee) {
               <div class="status-controls">
                 <button type="button" data-edit-employee="${employee.id}">Редактировать</button>
                 <button class="secondary" type="button" data-toggle-employee="${employee.id}">
-                  ${employee.status === "dismissed" ? "Включить учетку" : "Отключить учетку"}
+                  ${employee.status === "dismissed" ? "Восстановить сотрудника" : "Отключить учетку"}
                 </button>
               </div>
             </div>
@@ -592,8 +592,9 @@ function renderDictionaryItem(item) {
     item.type === "systems"
       ? `<span class="meta">Бизнес-юниты: ${escapeHtml(metadataSubdivisions(item.metadata).join(", ") || "для всех")}</span>`
       : "";
+  const actionLabel = item.status === "archived" ? "Восстановить" : "Скрыть";
   return `
-    <button class="dictionary-item compact-row" type="button" data-edit-dictionary="${item.id}">
+    <article class="dictionary-item compact-row ${item.status === "archived" ? "archived" : ""}" data-dictionary-row="${item.id}">
       <div>
         <strong>${escapeHtml(item.value)}</strong>
         ${departmentMeta}
@@ -601,7 +602,11 @@ function renderDictionaryItem(item) {
         ${systemMeta}
       </div>
       <span class="status ${item.status === "archived" ? "rejected" : "approved"}">${statusLabel}</span>
-    </button>
+      <div class="dictionary-actions">
+        <button class="secondary" type="button" data-edit-dictionary="${item.id}">Редактировать</button>
+        <button class="secondary" type="button" data-toggle-dictionary="${item.id}">${actionLabel}</button>
+      </div>
+    </article>
   `;
 }
 
@@ -829,7 +834,7 @@ function fillDictionaryForm(item) {
   dictionaryCancelButton.classList.remove("hidden");
   dictionaryMessage.textContent = "";
   renderDictionaries();
-  moveDictionaryFormToItem(document.querySelector(`[data-edit-dictionary="${item.id}"]`));
+  moveDictionaryFormToItem(document.querySelector(`[data-dictionary-row="${item.id}"]`));
 }
 
 function syncDictionaryForm(options = {}) {
@@ -1008,14 +1013,14 @@ employeeList.addEventListener("click", async (event) => {
     ...employee,
     status: employee.status === "dismissed" ? "active" : "dismissed"
   };
-  employeeMessage.textContent = employee.status === "dismissed" ? "Включаем учетку..." : "Отключаем учетку...";
+  employeeMessage.textContent = employee.status === "dismissed" ? "Восстанавливаем сотрудника..." : "Отключаем учетку...";
   try {
     await api(`/api/admin/users/${employee.id}`, {
       method: "PATCH",
       body: JSON.stringify(payload)
     });
     await loadEmployees();
-    employeeMessage.textContent = employee.status === "dismissed" ? "Учетка включена" : "Учетка отключена";
+    employeeMessage.textContent = employee.status === "dismissed" ? "Сотрудник восстановлен" : "Учетка отключена";
   } catch (error) {
     employeeMessage.textContent = error.message;
   }
@@ -1067,6 +1072,27 @@ dictionaryList.addEventListener("click", async (event) => {
     const item = allDictionaryItems().find((entry) => entry.id === editButton.dataset.editDictionary);
     if (item) fillDictionaryForm(item);
     return;
+  }
+
+  const toggleButton = event.target.closest("[data-toggle-dictionary]");
+  if (toggleButton) {
+    const item = allDictionaryItems().find((entry) => entry.id === toggleButton.dataset.toggleDictionary);
+    if (!item) return;
+    const selectedType = dictionaryForm.elements.type.value;
+    const nextStatus = item.status === "archived" ? "active" : "archived";
+    dictionaryMessage.textContent = nextStatus === "active" ? "Восстанавливаем значение..." : "Скрываем значение...";
+    try {
+      await api(`/api/admin/dictionaries/${item.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ ...item, status: nextStatus })
+      });
+      await loadDictionaries();
+      dictionaryForm.elements.type.value = selectedType;
+      renderDictionaries();
+      dictionaryMessage.textContent = nextStatus === "active" ? "Значение восстановлено" : "Значение скрыто";
+    } catch (error) {
+      dictionaryMessage.textContent = error.message;
+    }
   }
 });
 

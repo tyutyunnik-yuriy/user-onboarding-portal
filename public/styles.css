@@ -818,7 +818,7 @@ button.secondary:hover {
 }
 
 .dictionary-item.compact-row {
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 12px;
   align-items: center;
   min-height: 58px;
@@ -830,6 +830,19 @@ button.secondary:hover {
   border-radius: 0;
   box-shadow: none;
   text-align: left;
+}
+
+.dictionary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dictionary-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 
 .dictionary-item.compact-row:last-child {
@@ -968,9 +981,18 @@ pre {
   }
 
   .employee-summary,
-  .request-summary {
+  .request-summary,
+  .dictionary-item.compact-row {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .dictionary-actions {
+    justify-content: stretch;
+  }
+
+  .dictionary-actions button {
+    flex: 1 1 auto;
   }
 
   .pagination {
