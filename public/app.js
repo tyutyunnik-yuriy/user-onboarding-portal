@@ -2,8 +2,14 @@ const form = document.querySelector("#requestForm");
 const message = document.querySelector("#formMessage");
 const typeInputs = [...document.querySelectorAll('input[name="requestType"]')];
 const sections = [...document.querySelectorAll("[data-section]")];
-const employeeSelect = document.querySelector("#employeeSelect");
-const permissionEmployeeSelect = document.querySelector("#permissionEmployeeSelect");
+const employeeSearchInputs = {
+  offboarding: document.querySelector('[data-employee-search-input="offboarding"]'),
+  permissions: document.querySelector('[data-employee-search-input="permissions"]')
+};
+const employeeSearchResults = {
+  offboarding: document.querySelector('[data-employee-search-results="offboarding"]'),
+  permissions: document.querySelector('[data-employee-search-results="permissions"]')
+};
 const dictionarySelects = [...document.querySelectorAll("[data-dictionary]")];
 const dictionaryCheckboxGroups = [...document.querySelectorAll("[data-checkbox-dictionary]")];
 const offboardingSystemsGroup = document.querySelector("[data-employee-offboarding-systems]");
@@ -319,28 +325,8 @@ async function loadEmployees() {
     const response = await fetch("/api/users");
     const result = await response.json();
     employees = result.users || [];
-    const options =
-      employees.length
-        ? employees
-            .map((employee) => {
-              const label = `${employee.fullName} · ${employee.department} · ${employee.email}`;
-              return `<option value="${escapeHtml(employee.id)}">${escapeHtml(label)}</option>`;
-            })
-            .join("")
-        : '<option value="" disabled>Сотрудников в базе пока нет</option>';
-    const first = employeeSelect.querySelector("option")?.outerHTML || '<option value="">Выберите сотрудника</option>';
-    const permissionFirst = permissionEmployeeSelect.querySelector("option")?.outerHTML || '<option value="">Выберите сотрудника</option>';
-    employeeSelect.innerHTML = first + options;
-    permissionEmployeeSelect.innerHTML =
-      permissionFirst +
-      (employees.length
-        ? employees
-            .map((employee) => {
-              const label = `${employee.fullName} · ${employee.department} · ${employee.email}`;
-              return `<option value="${escapeHtml(employee.id)}">${escapeHtml(label)}</option>`;
-            })
-            .join("")
-        : '<option value="" disabled>Сотрудников в базе пока нет</option>');
+    renderEmployeeSearchResults("offboarding");
+    renderEmployeeSearchResults("permissions");
     mergeManagersFromEmployees();
     fillDictionarySelects();
     syncManagerByDepartment();
@@ -355,14 +341,110 @@ function escapeHtml(value) {
   });
 }
 
-employeeSelect.addEventListener("change", () => {
-  const employee = employees.find((item) => item.id === employeeSelect.value);
-  fillEmployeeFields(employee);
+function normalizeSearch(value) {
+  return String(value || "")
+    .replace(/ё/g, "е")
+    .toLowerCase();
+}
+
+function employeeSearchText(employee) {
+  return [
+    employee.fullName,
+    employee.lastName,
+    employee.firstName,
+    employee.middleName,
+    employee.email,
+    employee.phone,
+    employee.department,
+    employee.subdivision,
+    employee.position,
+    employee.manager,
+    ...(employee.systems || [])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .concat(" ", String(employee.phone || "").replace(/\D/g, ""))
+    .toLowerCase()
+    .replace(/ё/g, "е");
+}
+
+function employeeSearchLabel(employee) {
+  return `${employee.fullName} · ${employee.email || "без почты"}`;
+}
+
+function renderEmployeeSearchResults(kind) {
+  const input = employeeSearchInputs[kind];
+  const results = employeeSearchResults[kind];
+  if (!input || !results) return;
+
+  const query = normalizeSearch(input.value.trim());
+  const selectedId = kind === "offboarding" ? form.elements.employeeId.value : form.elements.permissionEmployeeId.value;
+  if (!employees.length) {
+    results.innerHTML = '<p class="meta">Сотрудников в базе пока нет</p>';
+    return;
+  }
+  if (!query) {
+    results.innerHTML = '<p class="meta">Начните вводить ФИО, почту, отдел или бизнес-юнит</p>';
+    return;
+  }
+
+  const tokens = query.split(/\s+/).filter(Boolean);
+  const matches = employees
+    .filter((employee) => {
+      const text = employeeSearchText(employee);
+      return tokens.every((token) => text.includes(token) || text.includes(token.replace(/\D/g, "")));
+    })
+    .slice(0, 10);
+  results.innerHTML = matches.length
+    ? matches
+        .map(
+          (employee) => `
+            <button class="employee-search-result ${employee.id === selectedId ? "active" : ""}" type="button" data-select-employee="${escapeHtml(employee.id)}" data-employee-search-kind="${escapeHtml(kind)}">
+              <strong>${escapeHtml(employee.fullName)}</strong>
+              <span>${escapeHtml(employee.email || "без почты")} · ${escapeHtml(employee.department || "без отдела")} · ${escapeHtml(employee.subdivision || "без бизнес-юнита")}</span>
+            </button>
+          `
+        )
+        .join("")
+    : '<p class="meta">Ничего не найдено. Уточните ФИО, почту или отдел.</p>';
+}
+
+function selectEmployeeForRequest(kind, employee) {
+  if (kind === "offboarding") {
+    form.elements.employeeId.value = employee?.id || "";
+    employeeSearchInputs.offboarding.value = employee ? employeeSearchLabel(employee) : "";
+    fillEmployeeFields(employee);
+  } else {
+    form.elements.permissionEmployeeId.value = employee?.id || "";
+    employeeSearchInputs.permissions.value = employee ? employeeSearchLabel(employee) : "";
+    fillPermissionFields(employee);
+  }
+  renderEmployeeSearchResults(kind);
+}
+
+Object.entries(employeeSearchInputs).forEach(([kind, input]) => {
+  if (!input) return;
+  input.addEventListener("input", () => {
+    if (kind === "offboarding") {
+      form.elements.employeeId.value = "";
+      fillEmployeeFields(null);
+    } else {
+      form.elements.permissionEmployeeId.value = "";
+      fillPermissionFields(null);
+    }
+    renderEmployeeSearchResults(kind);
+  });
+  input.addEventListener("focus", () => renderEmployeeSearchResults(kind));
 });
 
-permissionEmployeeSelect.addEventListener("change", () => {
-  const employee = employees.find((item) => item.id === permissionEmployeeSelect.value);
-  fillPermissionFields(employee);
+Object.values(employeeSearchResults).forEach((results) => {
+  if (!results) return;
+  results.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-select-employee]");
+    if (!button) return;
+    const employee = employees.find((item) => item.id === button.dataset.selectEmployee);
+    selectEmployeeForRequest(button.dataset.employeeSearchKind, employee);
+  });
 });
 
 form.elements.department.addEventListener("change", () => {
@@ -415,6 +497,10 @@ form.addEventListener("submit", async (event) => {
 
   if (payload.requestType === "permissions") {
     const employee = employees.find((item) => item.id === payload.permissionEmployeeId);
+    if (!employee) {
+      message.textContent = "Выберите сотрудника из найденных результатов";
+      return;
+    }
     const currentSystems = employee?.systems || [];
     const requestedSystems = payload.requestedSystems || [];
     payload.employeeId = payload.permissionEmployeeId;
@@ -431,6 +517,10 @@ form.addEventListener("submit", async (event) => {
 
   if (payload.requestType === "offboarding") {
     const employee = employees.find((item) => item.id === payload.employeeId);
+    if (!employee) {
+      message.textContent = "Выберите сотрудника из найденных результатов";
+      return;
+    }
     payload.currentSystems = employee?.systems || [];
     payload.offboardingActions = [];
   }
@@ -467,6 +557,8 @@ form.addEventListener("submit", async (event) => {
   form.reset();
   fillEmployeeFields(null);
   fillPermissionFields(null);
+  renderEmployeeSearchResults("offboarding");
+  renderEmployeeSearchResults("permissions");
   syncRequestType();
   message.textContent = `Заявка создана. Номер: ${result.item.id.slice(0, 8)}`;
 });

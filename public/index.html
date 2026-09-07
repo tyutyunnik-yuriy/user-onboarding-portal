@@ -98,13 +98,13 @@
         <section class="request-section hidden" data-section="offboarding">
           <h2>Увольнение и отключение доступов</h2>
           <div class="form-grid">
-            <label>
+            <div class="form-field">
               <span>Сотрудник из базы *</span>
-              <select name="employeeId" id="employeeSelect" data-required-for="offboarding">
-                <option value="">Выберите сотрудника</option>
-              </select>
+              <input name="employeeSearch" type="search" autocomplete="off" placeholder="Начните вводить ФИО, почту, отдел или бизнес-юнит" data-employee-search-input="offboarding" />
+              <input name="employeeId" type="hidden" data-required-for="offboarding" />
+              <div class="employee-search-results" data-employee-search-results="offboarding"></div>
               <input name="employeeName" type="hidden" />
-            </label>
+            </div>
             <label>
               <span>Почта сотрудника *</span>
               <input name="employeeEmail" type="email" data-required-for="offboarding" readonly />
@@ -148,12 +148,12 @@
         <section class="request-section hidden" data-section="permissions">
           <h2>Изменение прав сотрудника</h2>
           <div class="form-grid">
-            <label>
+            <div class="form-field">
               <span>Сотрудник из базы *</span>
-              <select name="permissionEmployeeId" id="permissionEmployeeSelect" data-required-for="permissions">
-                <option value="">Выберите сотрудника</option>
-              </select>
-            </label>
+              <input name="permissionEmployeeSearch" type="search" autocomplete="off" placeholder="Начните вводить ФИО, почту, отдел или бизнес-юнит" data-employee-search-input="permissions" />
+              <input name="permissionEmployeeId" type="hidden" data-required-for="permissions" />
+              <div class="employee-search-results" data-employee-search-results="permissions"></div>
+            </div>
             <label>
               <span>Почта сотрудника</span>
               <input name="permissionEmployeeEmail" type="email" readonly />
@@ -199,6 +199,6 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/app.js?v=manager-autofill-department-20260822"></script>
+    <script src="/app.js?v=employee-search-disable-20260907"></script>
   </body>
 </html>

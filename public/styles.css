@@ -275,6 +275,7 @@ h2 {
 }
 
 label,
+.form-field,
 fieldset {
   display: grid;
   gap: 8px;
@@ -284,6 +285,7 @@ fieldset {
 }
 
 label span,
+.form-field > span,
 legend {
   color: #263241;
 }
@@ -449,6 +451,48 @@ button.secondary {
 button.secondary:hover {
   color: #ffffff;
   background: var(--primary);
+}
+
+.employee-search-results {
+  display: grid;
+  gap: 8px;
+  max-height: 292px;
+  overflow: auto;
+}
+
+.employee-search-result {
+  display: grid;
+  gap: 4px;
+  min-height: 58px;
+  padding: 10px 12px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: none;
+  text-align: left;
+}
+
+.employee-search-result:hover,
+.employee-search-result.active {
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border-color: rgba(15, 118, 110, 0.34);
+  box-shadow: none;
+  transform: none;
+}
+
+.employee-search-result strong,
+.employee-search-result span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.employee-search-result span {
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .actions,

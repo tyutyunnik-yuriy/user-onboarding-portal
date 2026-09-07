@@ -450,7 +450,7 @@ function moveEmployeeFormToCard(card) {
 }
 
 function renderEmployeeCard(employee) {
-  const statusLabel = employee.status === "dismissed" ? "Уволен" : "Активен";
+  const statusLabel = employee.status === "dismissed" ? "Отключен" : "Активен";
   const expanded = expandedEmployeeId === employee.id;
   return `
     <article class="request-card employee-card compact ${expanded ? "expanded" : ""}">
@@ -480,7 +480,7 @@ function renderEmployeeCard(employee) {
               <div class="status-controls">
                 <button type="button" data-edit-employee="${employee.id}">Редактировать</button>
                 <button class="secondary" type="button" data-toggle-employee="${employee.id}">
-                  ${employee.status === "dismissed" ? "Вернуть в активные" : "Отметить уволенным"}
+                  ${employee.status === "dismissed" ? "Включить учетку" : "Отключить учетку"}
                 </button>
               </div>
             </div>
