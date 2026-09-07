@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Портал администратора</title>
-    <link rel="stylesheet" href="/styles.css?v=brand-visual-20260907" />
+    <link rel="stylesheet" href="/styles.css?v=dark-command-20260907" />
   </head>
   <body>
     <header class="topbar">
@@ -22,7 +22,14 @@
           <p class="eyebrow">Портал администратора</p>
           <h1>Заявки на подключение, увольнение и права</h1>
         </div>
-        <button id="logoutButton" class="secondary hidden" type="button">Выйти</button>
+        <div class="admin-hero-actions">
+          <div class="signal-board compact" aria-hidden="true">
+            <span>New</span>
+            <span>Approve</span>
+            <span>Done</span>
+          </div>
+          <button id="logoutButton" class="secondary hidden" type="button">Выйти</button>
+        </div>
       </section>
 
       <form id="loginForm" class="panel narrow">
