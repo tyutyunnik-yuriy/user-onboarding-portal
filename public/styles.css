@@ -336,8 +336,24 @@ fieldset label {
   border-radius: var(--radius);
 }
 
-fieldset [data-checkbox-dictionary] {
+fieldset [data-checkbox-dictionary]:not(.searchable-checkbox-list) {
   display: contents;
+}
+
+.checkbox-search-input {
+  grid-column: 1 / -1;
+  min-height: 42px;
+}
+
+[data-searchable-checkboxes].searchable-checkbox-list {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 16px;
+}
+
+.checkbox-search-empty {
+  grid-column: 1 / -1;
 }
 
 .full-row {
@@ -397,6 +413,16 @@ textarea:disabled {
   color: var(--muted);
   background: #eef3f6;
   cursor: not-allowed;
+}
+
+.native-select-hidden {
+  position: absolute;
+  width: 1px;
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 input[type="checkbox"],
@@ -503,6 +529,68 @@ button.secondary:hover {
 .employee-search-result span {
   color: var(--muted);
   font-size: 14px;
+}
+
+.searchable-select {
+  position: relative;
+  display: grid;
+  gap: 6px;
+}
+
+.searchable-select input {
+  padding-right: 42px;
+}
+
+.searchable-select::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  pointer-events: none;
+  transform: rotate(45deg);
+}
+
+.searchable-select-results {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  display: none;
+  max-height: 280px;
+  overflow: auto;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.searchable-select.open .searchable-select-results {
+  display: grid;
+  gap: 4px;
+}
+
+.searchable-select-results button {
+  min-height: 38px;
+  padding: 8px 10px;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-align: left;
+}
+
+.searchable-select-results button:hover,
+.searchable-select-results button.active {
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  box-shadow: none;
+  transform: none;
 }
 
 .selected-employee-card {

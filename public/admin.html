@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Портал администратора</title>
-    <link rel="stylesheet" href="/styles.css?v=dictionary-actions-20260907" />
+    <link rel="stylesheet" href="/styles.css?v=reference-search-20260908" />
   </head>
   <body>
     <header class="topbar">
@@ -97,25 +97,25 @@
                 </label>
                 <label>
                   <span id="employeeSubdivisionLabel">Бизнес-юнит</span>
-                  <select name="subdivision" data-employee-dictionary="subdivisions">
+                  <select name="subdivision" data-employee-dictionary="subdivisions" data-searchable-select>
                     <option value="">Выберите бизнес-юнит</option>
                   </select>
                 </label>
                 <label>
                   <span>Отдел *</span>
-                  <select name="department" required>
+                  <select name="department" data-searchable-select required>
                     <option value="">Выберите отдел</option>
                   </select>
                 </label>
                 <label>
                   <span>Должность *</span>
-                  <select name="position" data-employee-dictionary="positions" required>
+                  <select name="position" data-employee-dictionary="positions" data-searchable-select required>
                     <option value="">Выберите должность</option>
                   </select>
                 </label>
                 <label>
                   <span id="employeeManagerLabel">Руководитель *</span>
-                  <select name="manager" data-employee-dictionary="managers">
+                  <select name="manager" data-employee-dictionary="managers" data-searchable-select>
                     <option value="">Выберите руководителя</option>
                   </select>
                 </label>
@@ -125,11 +125,11 @@
                 </label>
                 <fieldset class="manager-business-units hidden">
                   <legend>Дополнительные бизнес-юниты ответственности</legend>
-                  <div data-manager-business-units></div>
+                  <div data-manager-business-units data-searchable-checkboxes data-search-placeholder="Найти бизнес-юнит"></div>
                 </fieldset>
                 <label>
                   <span>Уровень доступа</span>
-                  <select name="accessLevel" data-employee-dictionary="accessLevels">
+                  <select name="accessLevel" data-employee-dictionary="accessLevels" data-searchable-select>
                     <option value="">Выберите уровень</option>
                   </select>
                 </label>
@@ -143,7 +143,7 @@
               </div>
               <fieldset>
                 <legend>Системы сотрудника</legend>
-                <div data-employee-systems></div>
+                <div data-employee-systems data-searchable-checkboxes data-search-placeholder="Найти систему"></div>
               </fieldset>
               <div class="actions">
                 <button id="employeeSubmitButton" type="submit">Добавить сотрудника</button>
@@ -186,17 +186,17 @@
                 </label>
                 <label class="position-extra hidden">
                   <span>Отдел для должности *</span>
-                  <select name="department">
+                  <select name="department" data-searchable-select>
                     <option value="">Выберите отдел</option>
                   </select>
                 </label>
                 <fieldset class="department-extra hidden">
                   <legend>Бизнес-юниты для отдела *</legend>
-                  <div data-department-business-units></div>
+                  <div data-department-business-units data-searchable-checkboxes data-search-placeholder="Найти бизнес-юнит"></div>
                 </fieldset>
                 <fieldset class="system-extra hidden">
                   <legend>Бизнес-юниты для системы *</legend>
-                  <div data-system-subdivisions></div>
+                  <div data-system-subdivisions data-searchable-checkboxes data-search-placeholder="Найти бизнес-юнит"></div>
                 </fieldset>
                 <label>
                   <span>Статус</span>
@@ -219,6 +219,7 @@
       </section>
     </main>
 
-    <script src="/admin.js?v=dictionary-actions-20260907"></script>
+    <script src="/searchable-select.js?v=reference-search-20260908"></script>
+    <script src="/admin.js?v=reference-search-20260908"></script>
   </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Кадровые IT-заявки</title>
-    <link rel="stylesheet" href="/styles.css?v=aligned-request-switch-20260907" />
+    <link rel="stylesheet" href="/styles.css?v=reference-search-20260908" />
   </head>
   <body>
     <header class="topbar">
@@ -57,19 +57,19 @@
             </label>
             <label>
               <span>Бизнес-юнит *</span>
-              <select name="subdivision" data-dictionary="subdivisions" data-required-for="onboarding" required>
+              <select name="subdivision" data-dictionary="subdivisions" data-required-for="onboarding" data-searchable-select required>
                 <option value="">Выберите бизнес-юнит</option>
               </select>
             </label>
             <label>
               <span>Отдел *</span>
-              <select name="department" data-required-for="onboarding offboarding" required>
+              <select name="department" data-required-for="onboarding offboarding" data-searchable-select required>
                 <option value="">Выберите отдел</option>
               </select>
             </label>
             <label>
               <span>Должность *</span>
-              <select name="position" data-dictionary="positions" data-required-for="onboarding" required>
+              <select name="position" data-dictionary="positions" data-required-for="onboarding" data-searchable-select required>
                 <option value="">Выберите должность</option>
               </select>
             </label>
@@ -83,7 +83,7 @@
             </label>
             <label>
               <span>Уровень доступа *</span>
-              <select name="accessLevel" data-dictionary="accessLevels" data-required-for="onboarding" required>
+              <select name="accessLevel" data-dictionary="accessLevels" data-required-for="onboarding" data-searchable-select required>
                 <option value="">Выберите</option>
               </select>
             </label>
@@ -91,7 +91,13 @@
 
           <fieldset>
             <legend>Необходимые системы *</legend>
-            <div data-checkbox-dictionary="systems" data-checkbox-name="systems" data-required-for="onboarding"></div>
+            <div
+              data-checkbox-dictionary="systems"
+              data-checkbox-name="systems"
+              data-required-for="onboarding"
+              data-searchable-checkboxes
+              data-search-placeholder="Найти систему"
+            ></div>
           </fieldset>
         </section>
 
@@ -111,7 +117,7 @@
             </label>
             <label>
               <span>Когда отключить доступы *</span>
-              <select name="disableTime" data-required-for="offboarding">
+              <select name="disableTime" data-required-for="offboarding" data-searchable-select>
                 <option value="">Выберите</option>
                 <option>В день увольнения в 18:00</option>
                 <option>В день увольнения в 12:00</option>
@@ -121,7 +127,7 @@
             </label>
             <label>
               <span>Кому передать данные *</span>
-              <select name="handoverTo" data-dictionary="managers" data-required-for="offboarding">
+              <select name="handoverTo" data-dictionary="managers" data-required-for="offboarding" data-searchable-select>
                 <option value="">Выберите получателя</option>
               </select>
             </label>
@@ -145,7 +151,7 @@
             </div>
             <label>
               <span>Новый уровень доступа</span>
-              <select name="requestedAccessLevel" data-dictionary="accessLevels">
+              <select name="requestedAccessLevel" data-dictionary="accessLevels" data-searchable-select>
                 <option value="">Не менять</option>
               </select>
             </label>
@@ -153,7 +159,7 @@
 
           <fieldset>
             <legend>Системы сотрудника</legend>
-            <div data-permission-systems></div>
+            <div data-permission-systems data-searchable-checkboxes data-search-placeholder="Найти систему"></div>
           </fieldset>
         </section>
 
@@ -172,6 +178,7 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/app.js?v=aligned-employee-fields-20260907"></script>
+    <script src="/searchable-select.js?v=reference-search-20260908"></script>
+    <script src="/app.js?v=reference-search-20260908"></script>
   </body>
 </html>
