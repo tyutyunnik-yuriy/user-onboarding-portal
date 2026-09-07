@@ -16,6 +16,8 @@ const TELEGRAM_ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || "";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const UNSAFE_ADMIN_PASSWORDS = new Set(["admin123", "change-me-before-publication", "change-this"]);
 const DEPARTMENT_MANAGER_POSITION = "Руководитель отдела";
+const MAX_JSON_BODY_BYTES = 1_000_000;
+const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 const requestTypes = {
   onboarding: "Подключение",
@@ -99,6 +101,13 @@ function normalizeEmail(value = "") {
 
 function normalizePhone(value = "") {
   return String(value || "").replace(/\D/g, "");
+}
+
+function normalizeText(value = "") {
+  return String(value || "")
+    .trim()
+    .replace(/ё/g, "е")
+    .toLowerCase();
 }
 
 function isValidUkrainianPhone(value = "") {
@@ -370,6 +379,12 @@ function sendText(res, status, text) {
   res.end(text);
 }
 
+function httpError(statusCode, message) {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+}
+
 function parseCookies(req) {
   return Object.fromEntries(
     (req.headers.cookie || "")
@@ -377,14 +392,25 @@ function parseCookies(req) {
       .filter(Boolean)
       .map((part) => {
         const [key, ...value] = part.trim().split("=");
-        return [key, decodeURIComponent(value.join("="))];
+        try {
+          return [key, decodeURIComponent(value.join("="))];
+        } catch {
+          return [key, value.join("=")];
+        }
       })
   );
 }
 
 function getSession(req) {
   const token = parseCookies(req).session;
-  return token ? sessions.get(token) : null;
+  if (!token) return null;
+  const session = sessions.get(token);
+  if (!session) return null;
+  if (Date.now() - session.createdAt > SESSION_MAX_AGE_MS) {
+    sessions.delete(token);
+    return null;
+  }
+  return session;
 }
 
 function requireAdmin(req, res) {
@@ -401,13 +427,20 @@ function cookieFlags(req) {
 
 async function readBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > MAX_JSON_BODY_BYTES) {
+      throw httpError(413, "Слишком большой запрос");
+    }
+    chunks.push(chunk);
+  }
   const raw = Buffer.concat(chunks).toString("utf8");
   if (!raw) return {};
   try {
     return JSON.parse(raw);
   } catch {
-    return {};
+    throw httpError(400, "Некорректный JSON в запросе");
   }
 }
 
@@ -585,6 +618,56 @@ async function validateNewEmployeeUniqueness(item) {
   return errors;
 }
 
+async function resolveActiveEmployee(item) {
+  if (item.employeeId) {
+    const employee = await storage.findActiveUserById(item.employeeId);
+    return employee ? { employee } : { errors: ["Сотрудник не найден в базе или уже отключен"] };
+  }
+
+  const users = await storage.listUsers();
+  const email = normalizeEmail(item.employeeEmail || item.email);
+  if (email) {
+    const employee = users.find((user) => normalizeEmail(user.email) === email);
+    return employee ? { employee } : { errors: ["Активный сотрудник с такой почтой не найден"] };
+  }
+
+  const query = normalizeText(item.employeeName || item.fullName);
+  if (!query) return { employee: null };
+
+  const matches = users.filter((user) => {
+    const text = normalizeText([
+      user.fullName,
+      user.lastName,
+      user.firstName,
+      user.middleName,
+      user.email,
+      user.phone,
+      user.department,
+      user.subdivision,
+      user.position
+    ].join(" "));
+    return query.split(/\s+/).every((token) => text.includes(token));
+  });
+
+  if (matches.length === 1) return { employee: matches[0] };
+  if (matches.length > 1) {
+    return { errors: ["Найдено несколько сотрудников. Уточните ФИО или почту сотрудника"] };
+  }
+  return { errors: ["Сотрудник не найден в базе"] };
+}
+
+function applyEmployeeSnapshot(item, employee) {
+  item.employeeId = employee.id;
+  item.employeeName = employee.fullName;
+  item.employeeEmail = employee.email;
+  item.department = employee.department;
+  item.subdivision = employee.subdivision || employee.department;
+  item.position = employee.position || "";
+  item.manager = employee.manager;
+  item.currentAccessLevel = employee.accessLevel || "";
+  item.currentSystems = employee.systems || [];
+}
+
 function validateRequest(item) {
   const requiredFields = requiredFieldsByType[item.requestType] || requiredFieldsByType.onboarding;
   const missing = requiredFields.filter((field) => {
@@ -619,28 +702,17 @@ function validateRequest(item) {
 
 async function createRequest(payload, source = "web") {
   const normalized = normalizeRequest(payload, source);
-  if (normalized.requestType === "offboarding" && normalized.employeeId) {
-    const employee = await storage.findActiveUserById(normalized.employeeId);
-    if (!employee) return { errors: ["Сотрудник не найден в базе или уже уволен"] };
-    normalized.employeeName = employee.fullName;
-    normalized.employeeEmail = employee.email;
-    normalized.department = employee.department;
-    normalized.subdivision = employee.subdivision || employee.department;
-    normalized.position = employee.position || "";
-    normalized.manager = employee.manager;
-    normalized.currentSystems = employee.systems || [];
+  if (normalized.requestType === "offboarding") {
+    const { employee, errors } = await resolveActiveEmployee(normalized);
+    if (errors) return { errors };
+    if (employee) applyEmployeeSnapshot(normalized, employee);
   }
-  if (normalized.requestType === "permissions" && normalized.employeeId) {
-    const employee = await storage.findActiveUserById(normalized.employeeId);
-    if (!employee) return { errors: ["Сотрудник не найден в базе или уже уволен"] };
-    normalized.employeeName = employee.fullName;
-    normalized.employeeEmail = employee.email;
-    normalized.department = employee.department;
-    normalized.subdivision = employee.subdivision || employee.department;
-    normalized.position = employee.position || "";
-    normalized.manager = employee.manager;
-    normalized.currentAccessLevel = employee.accessLevel || "";
-    normalized.currentSystems = employee.systems || [];
+  if (normalized.requestType === "permissions") {
+    const { employee, errors } = await resolveActiveEmployee(normalized);
+    if (errors) return { errors };
+    if (employee) {
+      applyEmployeeSnapshot(normalized, employee);
+    }
     if (Object.hasOwn(payload, "requestedSystems")) {
       normalized.systemsToAdd = normalized.requestedSystems.filter((system) => !normalized.currentSystems.includes(system));
       normalized.systemsToRemove = normalized.currentSystems.filter((system) => !normalized.requestedSystems.includes(system));
@@ -980,9 +1052,10 @@ async function startTelegramPolling() {
 }
 
 async function serveStatic(req, res, pathname) {
-  const filePath = pathname === "/" ? path.join(PUBLIC_DIR, "index.html") : path.join(PUBLIC_DIR, pathname);
-  const resolved = path.resolve(filePath);
-  if (!resolved.startsWith(PUBLIC_DIR)) {
+  const requestedPath = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
+  const resolved = path.resolve(PUBLIC_DIR, requestedPath);
+  const publicRoot = path.resolve(PUBLIC_DIR);
+  if (resolved !== publicRoot && !resolved.startsWith(`${publicRoot}${path.sep}`)) {
     sendText(res, 403, "Forbidden");
     return;
   }
@@ -1213,8 +1286,9 @@ const server = http.createServer(async (req, res) => {
     }
     await serveStatic(req, res, decodeURIComponent(url.pathname));
   } catch (error) {
-    console.error(error);
-    sendJson(res, 500, { error: "Внутренняя ошибка сервера" });
+    const statusCode = error.statusCode || 500;
+    if (statusCode >= 500) console.error(error);
+    sendJson(res, statusCode, { error: error.statusCode ? error.message : "Внутренняя ошибка сервера" });
   }
 });
 
@@ -1243,7 +1317,7 @@ storage.init()
 
     server.listen(PORT, HOST, () => {
       console.log(`Portal is running: http://${HOST}:${PORT}`);
-      console.log(`Admin login: ${ADMIN_USER} / ${ADMIN_PASSWORD}`);
+      console.log(`Admin login: ${ADMIN_USER}`);
     });
     startTelegramPolling();
   })

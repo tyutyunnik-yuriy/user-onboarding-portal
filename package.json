@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "check": "node scripts/check-project.js",
     "db:schema": "node scripts/apply-postgres-schema.js",
     "db:migrate": "node scripts/migrate-json-to-postgres.js",
     "db:duplicates": "node scripts/find-employee-duplicates.js"

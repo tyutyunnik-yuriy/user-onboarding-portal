@@ -101,6 +101,23 @@ function setupPhoneMasks(scope = document) {
   });
 }
 
+function normalizeSearch(value) {
+  return String(value || "")
+    .replace(/ё/g, "е")
+    .toLowerCase();
+}
+
+function matchesSearch(text, query) {
+  const tokens = normalizeSearch(query).trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return true;
+  const haystack = normalizeSearch(text);
+  const digits = haystack.replace(/\D/g, "");
+  return tokens.every((token) => {
+    const tokenDigits = token.replace(/\D/g, "");
+    return haystack.includes(token) || (tokenDigits && digits.includes(tokenDigits));
+  });
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     ...options,
@@ -141,7 +158,7 @@ async function loadRequests() {
 }
 
 function renderRequests() {
-  const query = searchInput.value.trim().toLowerCase();
+  const query = searchInput.value;
   const type = typeFilter.value;
   const status = statusFilter.value;
   const filtered = requests.filter((item) => {
@@ -155,10 +172,8 @@ function renderRequests() {
       item.systems?.join(", "),
       item.currentSystems?.join(", "),
       item.offboardingActions?.join(", ")
-    ]
-      .join(" ")
-      .toLowerCase();
-    return (!query || text.includes(query)) && (!type || item.requestType === type) && (!status || item.status === status);
+    ].join(" ");
+    return matchesSearch(text, query) && (!type || item.requestType === type) && (!status || item.status === status);
   });
 
   if (filtered.length === 0) {
@@ -391,7 +406,7 @@ function fillDictionaryDepartmentSelect() {
 
 function renderEmployees() {
   moveEmployeeFormHome();
-  const query = employeeSearchInput.value.trim().toLowerCase();
+  const query = employeeSearchInput.value;
   const status = employeeStatusFilter.value;
   const filtered = employees.filter((employee) => {
     const text = [
@@ -409,10 +424,8 @@ function renderEmployees() {
       employee.isDepartmentManager ? "руководитель отдела" : "",
       employee.accessLevel,
       employee.systems?.join(", ")
-    ]
-      .join(" ")
-      .toLowerCase();
-    return (!query || text.includes(query)) && (!status || employee.status === status);
+    ].join(" ");
+    return matchesSearch(text, query) && (!status || employee.status === status);
   });
 
   if (filtered.length === 0) {
@@ -995,11 +1008,17 @@ employeeList.addEventListener("click", async (event) => {
     ...employee,
     status: employee.status === "dismissed" ? "active" : "dismissed"
   };
-  await api(`/api/admin/users/${employee.id}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload)
-  });
-  await loadEmployees();
+  employeeMessage.textContent = employee.status === "dismissed" ? "Включаем учетку..." : "Отключаем учетку...";
+  try {
+    await api(`/api/admin/users/${employee.id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    });
+    await loadEmployees();
+    employeeMessage.textContent = employee.status === "dismissed" ? "Учетка включена" : "Учетка отключена";
+  } catch (error) {
+    employeeMessage.textContent = error.message;
+  }
 });
 
 dictionaryForm.addEventListener("submit", async (event) => {
