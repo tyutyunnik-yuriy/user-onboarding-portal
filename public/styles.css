@@ -495,6 +495,30 @@ button.secondary:hover {
   font-size: 14px;
 }
 
+.selected-employee-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 6px 14px;
+  padding: 12px;
+  color: var(--text);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), transparent 44%),
+    var(--primary-soft);
+  border: 1px solid rgba(15, 118, 110, 0.24);
+  border-radius: var(--radius);
+}
+
+.selected-employee-card strong {
+  grid-column: 1 / -1;
+}
+
+.selected-employee-card span {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
 .actions,
 .toolbar {
   display: flex;

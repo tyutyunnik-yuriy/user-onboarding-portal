@@ -10,6 +10,10 @@ const employeeSearchResults = {
   offboarding: document.querySelector('[data-employee-search-results="offboarding"]'),
   permissions: document.querySelector('[data-employee-search-results="permissions"]')
 };
+const selectedEmployeeSummaries = {
+  offboarding: document.querySelector('[data-selected-employee-summary="offboarding"]'),
+  permissions: document.querySelector('[data-selected-employee-summary="permissions"]')
+};
 const dictionarySelects = [...document.querySelectorAll("[data-dictionary]")];
 const dictionaryCheckboxGroups = [...document.querySelectorAll("[data-checkbox-dictionary]")];
 const offboardingSystemsGroup = document.querySelector("[data-employee-offboarding-systems]");
@@ -87,6 +91,7 @@ function fillEmployeeFields(employee) {
   if (employee?.manager && !form.elements.handoverTo.value) {
     form.elements.handoverTo.value = employee.manager;
   }
+  renderSelectedEmployeeSummary("offboarding", employee);
   fillOffboardingSystems(employee);
 }
 
@@ -98,6 +103,7 @@ function fillPermissionFields(employee) {
   if (employee?.accessLevel && !form.elements.requestedAccessLevel.value) {
     form.elements.requestedAccessLevel.value = "";
   }
+  renderSelectedEmployeeSummary("permissions", employee);
   fillPermissionSystems(employee);
 }
 
@@ -402,6 +408,21 @@ function employeeSearchRank(employee, tokens) {
 
 function employeeSearchLabel(employee) {
   return `${employee.fullName} · ${employee.email || "без почты"}`;
+}
+
+function renderSelectedEmployeeSummary(kind, employee) {
+  const summary = selectedEmployeeSummaries[kind];
+  if (!summary) return;
+  summary.classList.toggle("hidden", !employee);
+  summary.innerHTML = employee
+    ? `
+        <strong>${escapeHtml(employee.fullName)}</strong>
+        <span>${escapeHtml(employee.email || "почта не указана")}</span>
+        <span>${escapeHtml(employee.department || "отдел не указан")} · ${escapeHtml(employee.subdivision || "бизнес-юнит не указан")}</span>
+        <span>Руководитель: ${escapeHtml(employee.manager || "не указан")}</span>
+        ${kind === "permissions" ? `<span>Текущий доступ: ${escapeHtml(employee.accessLevel || "не назначен")}</span>` : ""}
+      `
+    : "";
 }
 
 function renderEmployeeSearchResults(kind) {

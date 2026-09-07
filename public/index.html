@@ -104,19 +104,11 @@
               <input name="employeeId" type="hidden" data-required-for="offboarding" />
               <div class="employee-search-results" data-employee-search-results="offboarding"></div>
               <input name="employeeName" type="hidden" />
+              <input name="employeeEmail" type="hidden" data-required-for="offboarding" />
+              <input name="offboardingDepartment" type="hidden" data-mirror-to="department" data-required-for="offboarding" />
+              <input name="offboardingManager" type="hidden" data-mirror-to="manager" data-required-for="offboarding" />
+              <div class="selected-employee-card hidden" data-selected-employee-summary="offboarding"></div>
             </div>
-            <label>
-              <span>Почта сотрудника *</span>
-              <input name="employeeEmail" type="email" data-required-for="offboarding" readonly />
-            </label>
-            <label>
-              <span>Отдел *</span>
-              <input name="offboardingDepartment" data-mirror-to="department" data-required-for="offboarding" readonly />
-            </label>
-            <label>
-              <span>Руководитель *</span>
-              <input name="offboardingManager" data-mirror-to="manager" data-required-for="offboarding" readonly />
-            </label>
             <label>
               <span>Дата увольнения *</span>
               <input name="terminationDate" type="date" data-required-for="offboarding" />
@@ -153,23 +145,12 @@
               <input name="permissionEmployeeSearch" type="search" autocomplete="off" placeholder="Начните вводить ФИО, почту, отдел или бизнес-юнит" data-employee-search-input="permissions" />
               <input name="permissionEmployeeId" type="hidden" data-required-for="permissions" />
               <div class="employee-search-results" data-employee-search-results="permissions"></div>
+              <input name="permissionEmployeeEmail" type="hidden" />
+              <input name="permissionDepartment" type="hidden" />
+              <input name="permissionManager" type="hidden" />
+              <input name="currentAccessLevel" type="hidden" />
+              <div class="selected-employee-card hidden" data-selected-employee-summary="permissions"></div>
             </div>
-            <label>
-              <span>Почта сотрудника</span>
-              <input name="permissionEmployeeEmail" type="email" readonly />
-            </label>
-            <label>
-              <span>Отдел</span>
-              <input name="permissionDepartment" readonly />
-            </label>
-            <label>
-              <span>Руководитель</span>
-              <input name="permissionManager" readonly />
-            </label>
-            <label>
-              <span>Текущий уровень доступа</span>
-              <input name="currentAccessLevel" readonly />
-            </label>
             <label>
               <span>Новый уровень доступа</span>
               <select name="requestedAccessLevel" data-dictionary="accessLevels">
@@ -199,6 +180,6 @@
     </main>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/app.js?v=employee-search-rank-20260907"></script>
+    <script src="/app.js?v=employee-selected-summary-20260907"></script>
   </body>
 </html>
