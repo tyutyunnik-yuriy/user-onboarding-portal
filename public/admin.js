@@ -211,7 +211,6 @@ async function loadDictionaries() {
   fillSystemSubdivisionCheckboxes();
   fillBusinessUnitCheckboxes(departmentBusinessUnitsGroup);
   fillManagerBusinessUnitCheckboxes();
-  window.enhanceSearchableSelects?.();
 }
 
 function fillEmployeeDictionarySelects() {
@@ -228,7 +227,6 @@ function fillEmployeeDictionarySelects() {
   fillEmployeeDepartmentSelect();
   fillEmployeePositionSelect();
   fillEmployeeSystemCheckboxes();
-  window.enhanceSearchableSelects?.();
 }
 
 function positionsForDepartment(department) {
@@ -278,7 +276,6 @@ function fillEmployeePositionSelect(selected = employeeForm.elements.position.va
   if ([...select.options].some((option) => option.value === selected)) {
     select.value = selected;
   }
-  window.enhanceSearchableSelects?.();
 }
 
 function fillEmployeeDepartmentSelect(selected = employeeForm.elements.department.value) {
@@ -289,7 +286,6 @@ function fillEmployeeDepartmentSelect(selected = employeeForm.elements.departmen
   if ([...select.options].some((option) => option.value === selected)) {
     select.value = selected;
   }
-  window.enhanceSearchableSelects?.();
 }
 
 function optionHtml(item) {
@@ -1122,5 +1118,4 @@ employeeStatusFilter.addEventListener("change", () => {
 tabButtons.forEach((button) => button.addEventListener("click", () => setActiveTab(button.dataset.tab)));
 setupPhoneMasks();
 syncDictionaryForm();
-window.enhanceSearchableSelects?.();
 checkAuth().catch(() => {});

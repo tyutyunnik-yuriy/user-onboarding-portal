@@ -82,7 +82,6 @@ function syncRequestType() {
 
 typeInputs.forEach((input) => input.addEventListener("change", syncRequestType));
 syncRequestType();
-window.enhanceSearchableSelects?.();
 
 function fillEmployeeFields(employee) {
   if (employee?.manager && !form.elements.handoverTo.value) {
@@ -314,7 +313,6 @@ async function loadDictionaries() {
     fillOnboardingSystems();
     syncManagerByDepartment();
     syncRequestType();
-    window.enhanceSearchableSelects?.();
   } catch {
     message.textContent = "Не удалось загрузить справочники";
   }
@@ -330,7 +328,6 @@ async function loadEmployees() {
     mergeManagersFromEmployees();
     fillDictionarySelects();
     syncManagerByDepartment();
-    window.enhanceSearchableSelects?.();
   } catch {
     message.textContent = "Не удалось загрузить список сотрудников";
   }
